@@ -1,0 +1,51 @@
+services:
+  # Database Service
+  - type: db
+    name: appers-postgres
+    databaseName: appers_db
+    user: appers_user
+    plan: free
+
+  # Redis Cache & Queue
+  - type: web
+    name: appers-redis
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    # In practice, use Render's managed Redis, but a dockerized container works too.
+
+  # Django Backend Web Service
+  - type: web
+    name: appers-backend
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    startCommand: "gunicorn config.wsgi:application"
+    plan: free
+    envVars:
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: appers-postgres
+          property: connectionString
+      - key: REDIS_URL
+        value: redis://appers-redis:6379/0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FIELD_ENCRYPTION_KEY
+        value: your-32-byte-base64-encryption-key=
+
+  # React Frontend SPA
+  - type: web
+    name: appers-frontend
+    env: static
+    buildCommand: "npm run build"
+    publishPath: "dist"
+    plan: free
+    headers:
+      - path: "/*"
+        name: "X-Frame-Options"
+        value: "DENY"
+      - path: "/*"
+        name: "X-Content-Type-Options"
+        value: "nosniff"

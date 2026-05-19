@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>APPERS – Zamfara State Performance Evaluation Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Base Reset & Fonts */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0b111e;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 30px;
+            color: #f8fafc;
+            font-size: 14px;
+        }
+        /* Paper Layout */
+        .paper {
+            background-color: #131c2e;
+            width: 210mm;
+            max-width: 100%;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 2.5cm;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+            box-sizing: border-box;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        @media screen and (max-width: 800px) {
+            .paper {
+                padding: 1.5cm;
+                width: 100%;
+            }
+            .row {
+                flex-wrap: wrap;
+            }
+            .field-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            .line-input, .inline-input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+                padding: 0;
+            }
+            .paper {
+                box-shadow: none;
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                border: none;
+                background-color: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        /* Header */
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #198754;
+            padding-bottom: 20px;
+        }
+        .logo-container {
+            width: 90px;
+            height: 90px;
+        }
+        .state-logo {
+            width: 100%;
+            height: auto;
+        }
+        .header-text {
+            flex-grow: 1;
+            text-align: center;
+        }
+        .confidential {
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+            margin: 0 0 5px 0;
+            color: #ef4444;
+            letter-spacing: 0.1em;
+        }
+        .form-title {
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #94a3b8;
+        }
+        .gen-code {
+            font-size: 1.1rem;
+        }
+        /* Form Parts */
+        .form-part {
+            margin-bottom: 40px;
+        }
+        .part-header {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 12px;
+            color: #198754;
+            font-size: 1.1rem;
+        }
+        .instruction {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .field-label {
+            font-weight: 600;
+            margin-right: 10px;
+            min-width: 180px;
+            color: #cbd5e1;
+        }
+        .line-input {
+            border: none;
+            border-bottom: 1px dotted rgba(255,255,255,0.3);
+            background: transparent;
+            padding: 8px 5px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            min-height: 40px;
+            width: 100%;
+            color: #ffffff;
+        }
+        .line-input:focus {
+            outline: none;
+            border-bottom: 1px solid #198754;
+        }
+        .flex-grow {
+            flex-grow: 1;
+        }
+        .full-width {
+            width: 100%;
+        }
+        .inline-input {
+            border: none;
+            border-bottom: 1px dotted rgba(255,255,255,0.3);
+            width: 120px;
+            background: transparent;
+            color: #fff;
+            padding: 4px;
+            text-align: center;
+        }
+        .lines-textarea {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: #1b263b;
+            line-height: 24px;
+            padding: 10px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            margin-top: 5px;
+            resize: vertical;
+        }
+        /* Assessment Table */
+        .assessment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+        .assessment-table th, .assessment-table td {
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 8px;
+            vertical-align: middle;
+        }
+        .assessment-table th {
+            background-color: #1b263b;
+            text-align: center;
+            color: #cbd5e1;
+        }
+        .grade-col {
+            width: 6%;
+            text-align: center;
+        }
+        .aspect-col {
+            font-weight: bold;
+            color: #fff;
+        }
+        /* Buttons & Submission Slip */
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            background: linear-gradient(135deg, #198754, #146c43);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .submission-slip {
+            margin-top: 40px;
+            padding: 25px;
+            border: 2px solid #198754;
+            background-color: #1b263b;
+            border-radius: 12px;
+            display: none;
+        }
+        .submission-slip h3 {
+            margin-top: 0;
+            color: #198754;
+        }
+        .slip-content {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #131c2e;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #38bdf8;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+<div class="paper" id="aperForm">
+    <!-- Header -->
+    <div class="form-header">
+        <div class="logo-container">
+            <img src="/zamfara_logo.png" alt="Zamfara State Seal" class="state-logo">
+        </div>
+        <div class="header-text">
+            <div class="confidential">CONFIDENTIAL</div>
+            <div class="form-title">ANNUAL PERFORMANCE EVALUATION REPORT</div>
+            <div class="report-meta">
+                <span>GEN. 79 (APPERS)</span>
+                <span>PERIOD OF REPORT: FROM <input type="text" class="inline-input" id="periodFrom" value="01/01/2026"> TO <input type="text" class="inline-input" id="periodTo" value="12/31/2026"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PART ONE -->
+    <div class="form-part">
+        <div class="part-header">PART ONE<br><span>PERSONAL RECORDS OF EMPLOYEE</span><br><span style="font-size:0.8rem; color:#94a3b8;">(To be completed by officers in grade Levels 03 and above)</span></div>
+        <div class="form-group">
+            <div class="row">
+                <span class="field-label">1. Name of Officer:</span>
+                <input type="text" class="line-input flex-grow" id="fullName" placeholder="Full Name" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <span class="field-label">2. Date of Birth</span>
+                <input type="text" class="line-input" id="dob" value="05/12/1988">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <span class="field-label">3. Ministry/MDA (Indicate Section/Division)</span>
+                <input type="text" class="line-input flex-grow" id="mda" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <span class="field-label">4. Qualifications held</span>
+                <input type="text" class="line-input flex-grow" id="qualifications" value="B.Sc Public Administration">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <span class="field-label">5. Date of first appointment</span>
+                <input type="text" class="line-input" id="firstAppointment" value="08/20/2012">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <span class="field-label">6. Present Substantive Grade</span>
+                <input type="text" class="line-input" id="grade" placeholder="GL-07" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <span class="field-label">7. Date appointed Substantive Grade</span>
+                <input type="text" class="line-input" id="gradeDate" value="03/15/2021">
+            </div>
+        </div>
+        <div class="form-group">
+            <span class="field-label">8. Present Job Description</span><br>
+            (a) Main duties: <textarea class="lines-textarea" rows="3" id="mainDuties">Coordinating office administrative tasks, sorting file registries, and drafting internal MDA briefs.</textarea>
+            (b) Ad hoc duties: <textarea class="lines-textarea" rows="2" id="adHocDuties">Elections audit task force, special agency task delegation.</textarea>
+        </div>
+    </div>
+
+    <!-- PART TWO -->
+    <div class="form-part">
+        <div class="part-header">PART TWO<br><span>ASSESSMENT OF PERFORMANCE</span></div>
+        <div class="form-group">
+            <span class="field-label">14. Aspects of performance self-rating:</span>
+            <table class="assessment-table" id="aspectsTable">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Description (Left)</th>
+                        <th class="grade-col">A</th>
+                        <th class="grade-col">B</th>
+                        <th class="grade-col">C</th>
+                        <th class="grade-col">D</th>
+                        <th class="grade-col">E</th>
+                        <th>Description (Right)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="aspect-col">Foresight</td><td>Anticipates problems...</td><td><input type="radio" name="foresight" value="A"></td><td><input type="radio" name="foresight" value="B"></td><td><input type="radio" name="foresight" value="C" checked></td><td><input type="radio" name="foresight" value="D"></td><td><input type="radio" name="foresight" value="E"></td><td>Grapples with problems after they arise</td></tr>
+                    <tr><td class="aspect-col">Penetration</td><td>Gets straight to roots</td><td><input type="radio" name="penetration" value="A"></td><td><input type="radio" name="penetration" value="B" checked></td><td><input type="radio" name="penetration" value="C"></td><td><input type="radio" name="penetration" value="D"></td><td><input type="radio" name="penetration" value="E"></td><td>Seldom sees below surface</td></tr>
+                    <tr><td class="aspect-col">Judgment</td><td>Decisions consistently sound</td><td><input type="radio" name="judgment" value="A"></td><td><input type="radio" name="judgment" value="B"></td><td><input type="radio" name="judgment" value="C" checked></td><td><input type="radio" name="judgment" value="D"></td><td><input type="radio" name="judgment" value="E"></td><td>Poor perception of merits</td></tr>
+                    <tr><td class="aspect-col">Expression on paper</td><td>Cogent, clear</td><td><input type="radio" name="paper" value="A" checked></td><td><input type="radio" name="paper" value="B"></td><td><input type="radio" name="paper" value="C"></td><td><input type="radio" name="paper" value="D"></td><td><input type="radio" name="paper" value="E"></td><td>Ambiguous, clumsy</td></tr>
+                    <tr><td class="aspect-col">Oral expression</td><td>Convincing, concise</td><td><input type="radio" name="oral" value="A"></td><td><input type="radio" name="oral" value="B" checked></td><td><input type="radio" name="oral" value="C"></td><td><input type="radio" name="oral" value="D"></td><td><input type="radio" name="oral" value="E"></td><td>Difficulty expressing self</td></tr>
+                    <tr><td class="aspect-col">Numerical Ability</td><td>Accurate with figures</td><td><input type="radio" name="numerical" value="A"></td><td><input type="radio" name="numerical" value="B"></td><td><input type="radio" name="numerical" value="C" checked></td><td><input type="radio" name="numerical" value="D"></td><td><input type="radio" name="numerical" value="E"></td><td>Gets confused</td></tr>
+                    <tr><td class="aspect-col">Relations with Colleagues</td><td>Tactful, earns respect</td><td><input type="radio" name="colleagues" value="A" checked></td><td><input type="radio" name="colleagues" value="B"></td><td><input type="radio" name="colleagues" value="C"></td><td><input type="radio" name="colleagues" value="D"></td><td><input type="radio" name="colleagues" value="E"></td><td>Intolerant, no respect</td></tr>
+                    <tr><td class="aspect-col">Relations with public</td><td>Exceptionally effective</td><td><input type="radio" name="public" value="A"></td><td><input type="radio" name="public" value="B" checked></td><td><input type="radio" name="public" value="C"></td><td><input type="radio" name="public" value="D"></td><td><input type="radio" name="public" value="E"></td><td>Tactless, cannot deal</td></tr>
+                    <tr><td class="aspect-col">Acceptance of responsibility</td><td>Seeks and accepts</td><td><input type="radio" name="responsibility" value="A"></td><td><input type="radio" name="responsibility" value="B" checked></td><td><input type="radio" name="responsibility" value="C"></td><td><input type="radio" name="responsibility" value="D"></td><td><input type="radio" name="responsibility" value="E"></td><td>Avoids responsibility</td></tr>
+                    <tr><td class="aspect-col">Reliability under pressure</td><td>Performs competently</td><td><input type="radio" name="pressure" value="A"></td><td><input type="radio" name="pressure" value="B"></td><td><input type="radio" name="pressure" value="C" checked></td><td><input type="radio" name="pressure" value="D"></td><td><input type="radio" name="pressure" value="E"></td><td>Easily thrown off</td></tr>
+                    <tr><td class="aspect-col">Drive and Determination</td><td>Wholehearted application</td><td><input type="radio" name="drive" value="A"></td><td><input type="radio" name="drive" value="B" checked></td><td><input type="radio" name="drive" value="C"></td><td><input type="radio" name="drive" value="D"></td><td><input type="radio" name="drive" value="E"></td><td>Lacks determination</td></tr>
+                    <tr><td class="aspect-col">Application of professional knowledge</td><td>Highly proficient</td><td><input type="radio" name="professional" value="A"></td><td><input type="radio" name="professional" value="B" checked></td><td><input type="radio" name="professional" value="C"></td><td><input type="radio" name="professional" value="D"></td><td><input type="radio" name="professional" value="E"></td><td>Deficient in application</td></tr>
+                    <tr><td class="aspect-col">Management of staff</td><td>Organises and inspires</td><td><input type="radio" name="management" value="A"></td><td><input type="radio" name="management" value="B"></td><td><input type="radio" name="management" value="C" checked></td><td><input type="radio" name="management" value="D"></td><td><input type="radio" name="management" value="E"></td><td>Inefficient, low morale</td></tr>
+                    <tr><td class="aspect-col">Output of work</td><td>Gets a great deal done</td><td><input type="radio" name="output" value="A" checked></td><td><input type="radio" name="output" value="B"></td><td><input type="radio" name="output" value="C"></td><td><input type="radio" name="output" value="D"></td><td><input type="radio" name="output" value="E"></td><td>Sloppish output</td></tr>
+                    <tr><td class="aspect-col">Quality of work</td><td>Very high standards</td><td><input type="radio" name="quality" value="A"></td><td><input type="radio" name="quality" value="B" checked></td><td><input type="radio" name="quality" value="C"></td><td><input type="radio" name="quality" value="D"></td><td><input type="radio" name="quality" value="E"></td><td>Consistently low standards</td></tr>
+                    <tr><td class="aspect-col">Punctuality</td><td>Regularly punctual</td><td><input type="radio" name="punctuality" value="A" checked></td><td><input type="radio" name="punctuality" value="B"></td><td><input type="radio" name="punctuality" value="C"></td><td><input type="radio" name="punctuality" value="D"></td><td><input type="radio" name="punctuality" value="E"></td><td>No regard for punctuality</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="form-group">
+            <span class="field-label">Overall performance self-assessment:</span>
+            <label><input type="radio" name="overall" value="Outstanding"> Outstanding</label> &nbsp;
+            <label><input type="radio" name="overall" value="VeryGood" checked> Very Good</label> &nbsp;
+            <label><input type="radio" name="overall" value="Good"> Good</label> &nbsp;
+            <label><input type="radio" name="overall" value="Fair"> Fair</label> &nbsp;
+            <label><input type="radio" name="overall" value="Unsatisfactory"> Unsatisfactory</label>
+        </div>
+        <div class="form-group">
+            <span class="field-label">Candidate reported on comment:</span>
+            <textarea class="lines-textarea" rows="2" id="staffComment">I have executed my primary duties diligently and met all performance objectives for this reporting year.</textarea>
+        </div>
+    </div>
+
+    <div class="action-buttons no-print">
+        <button class="btn" id="submitFormBtn">Submit Digital APERS</button>
+        <button class="btn btn-secondary" onclick="window.print();">Print / Save Local PDF</button>
+    </div>
+
+    <div id="submissionSlip" class="submission-slip no-print animate-fade">
+        <h3>📄 Zamfara Civil Service Submission Slip</h3>
+        <div id="slipContent" class="slip-content"></div>
+        <button class="btn" onclick="window.print();">Print Receipt</button>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:8000/api';
+
+    // Check credentials on load
+    (function () {
+        const token = localStorage.getItem('appers_auth_token') || localStorage.getItem('access_token');
+        const userStr = localStorage.getItem('user');
+
+        if (!token || !userStr) {
+            alert("Unauthorized: Please sign in to the portal first.");
+            window.close();
+            return;
+        }
+
+        const user = JSON.parse(userStr);
+        document.getElementById('fullName').value = user.full_name || '';
+        document.getElementById('mda').value = user.mda || '';
+        document.getElementById('grade').value = 'GL-' + (user.grade_level || '07');
+    })();
+
+    document.getElementById('submitFormBtn').addEventListener('click', async function() {
+        const token = localStorage.getItem('appers_auth_token') || localStorage.getItem('access_token');
+        if (!token) {
+            alert("Token expired. Please login again.");
+            return;
+        }
+
+        // Get aspects answers
+        const aspects = [
+            'foresight', 'penetration', 'judgment', 'paper', 'oral',
+            'numerical', 'colleagues', 'public', 'responsibility',
+            'pressure', 'drive', 'professional', 'management', 'output',
+            'quality', 'punctuality'
+        ];
+
+        const ratings = {};
+        aspects.forEach(asp => {
+            const checkedRadio = document.querySelector(`input[name="${asp}"]:checked`);
+            ratings[asp] = checkedRadio ? checkedRadio.value : 'C';
+        });
+
+        const payload = {
+            cycle: "2026",
+            personal_details: {
+                dob: document.getElementById('dob').value,
+                qualifications: document.getElementById('qualifications').value,
+                first_appointment: document.getElementById('firstAppointment').value,
+                grade_date: document.getElementById('gradeDate').value,
+                main_duties: document.getElementById('mainDuties').value,
+                ad_hoc_duties: document.getElementById('adHocDuties').value,
+            },
+            ratings: ratings,
+            overall_rating: document.querySelector('input[name="overall"]:checked')?.value || 'Good',
+            comments: document.getElementById('staffComment').value
+        };
+
+        try {
+            document.getElementById('submitFormBtn').disabled = true;
+            document.getElementById('submitFormBtn').innerText = "Submitting...";
+
+            const res = await fetch(`${API_BASE}/evaluation/submit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            document.getElementById('submitFormBtn').disabled = false;
+            document.getElementById('submitFormBtn').innerText = "Submit Digital APERS";
+
+            if (res.ok) {
+                alert("Evaluation form submitted successfully!");
+                renderSubmissionSlip(data);
+            } else {
+                alert("Submission failed: " + (data.error || JSON.stringify(data)));
+            }
+        } catch (e) {
+            alert("Network error: " + e.message);
+            document.getElementById('submitFormBtn').disabled = false;
+            document.getElementById('submitFormBtn').innerText = "Submit Digital APERS";
+        }
+    });
+
+    function renderSubmissionSlip(dbRecord) {
+        const slipHTML = `
+            <strong>Submission ID:</strong> APPERS-CSC-${dbRecord.id || Date.now()}<br>
+            <strong>Staff Name:</strong> ${escapeHtml(document.getElementById('fullName').value)}<br>
+            <strong>Ministry/MDA:</strong> ${escapeHtml(document.getElementById('mda').value)}<br>
+            <strong>Present Grade Level:</strong> ${escapeHtml(document.getElementById('grade').value)}<br>
+            <strong>Evaluation Cycle:</strong> 2026<br>
+            <strong>Total Calculated Score:</strong> ${dbRecord.self_score ? dbRecord.self_score.toFixed(1) : '3.0'}/5.0<br>
+            <strong>Submission Status:</strong> RECEIVED & SECURITY LOCKED<br>
+            <strong>Received Date:</strong> ${new Date().toLocaleString()}<br>
+            <hr style="border: 0; border-top: 1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
+            <em>This slip confirms that your digital APERS form has been validated and recorded. It has been routed to your supervisor for officer evaluation.</em>
+        `;
+        document.getElementById('slipContent').innerHTML = slipHTML;
+        document.getElementById('submissionSlip').style.display = 'block';
+        document.getElementById('submissionSlip').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+</script>
+</body>
+</html>

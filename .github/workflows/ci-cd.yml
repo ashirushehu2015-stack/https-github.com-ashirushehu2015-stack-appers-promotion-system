@@ -1,0 +1,64 @@
+name: APPERS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: appers_db
+          POSTGRES_USER: appers_user
+          POSTGRES_PASSWORD: appers_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+
+    - name: Run security check (bandit)
+      run: |
+        bandit -r backend/apps/ -ll
+
+    - name: Run Django Tests
+      env:
+        DATABASE_URL: postgres://appers_user:appers_pass@localhost:5432/appers_db
+        REDIS_URL: redis://localhost:6379/0
+        SECRET_KEY: test-key-for-github-actions
+        FIELD_ENCRYPTION_KEY: U29tZTMyQnl0ZUtleUZvckVuY3J5cHRpb25UZXN0aW5nIQ==
+      run: |
+        cd backend
+        pytest --maxfail=1 --disable-warnings
