@@ -41,11 +41,10 @@ services:
   # React Frontend SPA (Static Site)
   - type: web
     name: appers-frontend
-    env: static
+    runtime: static
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: "dist"
-    plan: free
     headers:
       - path: "/*"
         name: "X-Frame-Options"
