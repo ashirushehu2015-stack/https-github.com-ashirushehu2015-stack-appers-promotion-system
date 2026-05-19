@@ -25,3 +25,5 @@ coverage==7.5.0
 bandit==1.7.8
 whitenoise==6.6.0
 gunicorn==22.0.0
+pyotp==2.9.0
+
