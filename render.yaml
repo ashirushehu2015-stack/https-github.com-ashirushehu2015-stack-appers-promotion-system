@@ -34,8 +34,9 @@ services:
         value: "your-secure-32-byte-base64-encryption-key="
 
   # React Frontend SPA (Static Site)
-  - type: static
+  - type: web
     name: appers-frontend
+    env: static
     rootDirectory: frontend
     buildCommand: "npm install && npm run build"
     publishPath: "dist"
