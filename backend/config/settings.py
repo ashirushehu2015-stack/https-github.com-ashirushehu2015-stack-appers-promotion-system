@@ -163,7 +163,8 @@ BANK_WEBHOOK_SECRET = env("BANK_WEBHOOK_SECRET", default="dev-secret")
 BANK_API_URL = env("BANK_API_URL", default="https://mock-bank.example.com")
 BANK_API_KEY = env("BANK_API_KEY", default="mock-key")
 VA_EXPIRY_DAYS = env.int("VA_EXPIRY_DAYS", default=7)
-APPERS_FEE_AMOUNT = env.decimal("APPERS_FEE_AMOUNT", default="5000.00")
+from decimal import Decimal
+APPERS_FEE_AMOUNT = Decimal(env.str("APPERS_FEE_AMOUNT", default="5000.00"))
 
 # ─── App-specific ─────────────────────────────────────────────────
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
