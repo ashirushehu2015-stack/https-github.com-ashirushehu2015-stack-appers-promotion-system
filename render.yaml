@@ -9,6 +9,7 @@ services:
   - type: keyvalue
     name: appers-redis
     plan: free
+    ipAllowList: []
 
   # Django Backend Web Service
   - type: web
