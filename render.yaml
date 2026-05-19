@@ -34,15 +34,18 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: FIELD_ENCRYPTION_KEY
-        value: "your-secure-32-byte-base64-encryption-key="
+        value: "yW0_f0JZaW8yQEkKjNYUmH6wl4jMrdELmwN1sVnGyVM="
+      - key: ALLOWED_HOSTS
+        value: "*"
 
   # React Frontend SPA (Static Site)
   - type: web
     name: appers-frontend
-    runtime: static
+    env: static
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: "dist"
+    plan: free
     headers:
       - path: "/*"
         name: "X-Frame-Options"
