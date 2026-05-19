@@ -40,7 +40,7 @@ function Login({ onLoginSuccess }) {
     setLoading(false);
 
     if (res.success) {
-      if (res.data.2fa_required) {
+      if (res.data['2fa_required']) {
         setRequires2FA(true);
         setPreAuthUserId(res.data.pre_auth_user_id);
       } else {
