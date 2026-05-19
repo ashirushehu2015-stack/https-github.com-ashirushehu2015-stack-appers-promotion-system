@@ -22,19 +22,26 @@ function Analytics({ user }) {
     }
   };
 
+  const getBackendUrl = (path) => {
+    const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8000'
+      : 'https://appers-backend.onrender.com';
+    return `${host}${path}`;
+  };
+
   const handleExportCSV = () => {
     const token = localStorage.getItem('access_token');
-    window.open(`http://localhost:8000/api/analytics/export/csv/?token=${token}`, '_blank');
+    window.open(getBackendUrl(`/api/analytics/export/csv/?token=${token}`), '_blank');
   };
 
   const handleExportExcel = () => {
     const token = localStorage.getItem('access_token');
-    window.open(`http://localhost:8000/api/analytics/export/excel/?token=${token}`, '_blank');
+    window.open(getBackendUrl(`/api/analytics/export/excel/?token=${token}`), '_blank');
   };
 
   const handleExportPDF = (candId) => {
     const token = localStorage.getItem('access_token');
-    window.open(`http://localhost:8000/api/analytics/export/pdf/${candId}/?token=${token}`, '_blank');
+    window.open(getBackendUrl(`/api/analytics/export/pdf/${candId}/?token=${token}`), '_blank');
   };
 
   if (loading) {
