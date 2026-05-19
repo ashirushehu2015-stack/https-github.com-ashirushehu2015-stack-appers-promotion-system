@@ -14,7 +14,7 @@ services:
   - type: web
     name: appers-backend
     env: python
-    rootDirectory: backend
+    rootDir: backend
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
     startCommand: "gunicorn config.wsgi:application"
     plan: free
@@ -39,9 +39,9 @@ services:
   - type: web
     name: appers-frontend
     env: static
-    rootDirectory: frontend
+    rootDir: frontend
     buildCommand: "npm install && npm run build"
-    publishPath: "dist"
+    staticPublishPath: "dist"
     plan: free
     headers:
       - path: "/*"
