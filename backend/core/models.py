@@ -1,4 +1,5 @@
 from django.db import models
+from .audit import AuditLog
 
 
 class TimeStampedModel(models.Model):
