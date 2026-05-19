@@ -6,7 +6,7 @@ databases:
 
 services:
   # Redis Cache & Queue (Managed Service)
-  - type: redis
+  - type: keyvalue
     name: appers-redis
     plan: free
 
@@ -26,7 +26,8 @@ services:
           name: appers-postgres
           property: connectionString
       - key: REDIS_URL
-        fromRedis:
+        fromService:
+          type: keyvalue
           name: appers-redis
           property: connectionString
       - key: SECRET_KEY
