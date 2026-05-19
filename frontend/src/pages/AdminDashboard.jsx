@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ApiClient from '../api/client';
-import { Calendar, Award, ShieldAlert, Sparkles, RefreshCw, CheckCircle, FileSpreadsheet, Lock } from 'lucide-react';
+import { Calendar, Award, ShieldAlert, Sparkles, RefreshCw, CheckCircle, FileSpreadsheet, Lock, Pencil, Trash2, Archive, Plus } from 'lucide-react';
 
 function AdminDashboard({ user }) {
   const [activeTab, setActiveTab] = useState('candidates'); // 'candidates', 'cycles', 'rules', 'payments', 'audit'
@@ -27,6 +27,7 @@ function AdminDashboard({ user }) {
   const [overrideJustification, setOverrideJustification] = useState('');
   
   // Promotion Cycle form state
+  const [editingCycle, setEditingCycle] = useState(null);
   const [newCycleYear, setNewCycleYear] = useState('2026');
   const [newCycleStart, setNewCycleStart] = useState('');
   const [newCycleDeadline, setNewCycleDeadline] = useState('');
@@ -124,22 +125,78 @@ function AdminDashboard({ user }) {
     }
   };
 
-  const handleCreateCycle = async (e) => {
+  const handleEditClick = (cycle) => {
+    setEditingCycle(cycle);
+    setNewCycleYear(cycle.year);
+    setNewCycleStart(cycle.start_date);
+    setNewCycleDeadline(cycle.deadline);
+    setNewCycleFee(parseInt(cycle.fee_amount));
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCycle(null);
+    setNewCycleYear('2026');
+    setNewCycleStart('');
+    setNewCycleDeadline('');
+    setNewCycleFee('5000');
+  };
+
+  const handleSaveCycle = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-    const res = await ApiClient.post('/admin-panel/cycles/', {
+    
+    const payload = {
       year: newCycleYear,
       start_date: newCycleStart,
       deadline: newCycleDeadline,
-      is_active: true,
-      fee_amount: newCycleFee
+      fee_amount: newCycleFee,
+      is_active: editingCycle ? editingCycle.is_active : true
+    };
+    
+    let res;
+    if (editingCycle) {
+      res = await ApiClient.patch(`/admin-panel/cycles/${editingCycle.id}/`, payload);
+    } else {
+      res = await ApiClient.post('/admin-panel/cycles/', payload);
+    }
+    
+    if (res.success) {
+      setMessage(editingCycle ? `Promotion cycle ${newCycleYear} updated successfully!` : `Promotion cycle ${newCycleYear} started!`);
+      handleCancelEdit();
+      fetchData();
+    } else {
+      setError(typeof res.error === 'object' ? JSON.stringify(res.error) : res.error);
+    }
+  };
+
+  const handleToggleActive = async (cycle) => {
+    setError('');
+    setMessage('');
+    const newActiveState = !cycle.is_active;
+    const res = await ApiClient.patch(`/admin-panel/cycles/${cycle.id}/`, {
+      is_active: newActiveState
     });
     if (res.success) {
-      setMessage(`Promotion cycle ${newCycleYear} started!`);
-      setNewCycleYear('');
-      setNewCycleStart('');
-      setNewCycleDeadline('');
+      setMessage(`Promotion cycle ${cycle.year} is now ${newActiveState ? 'Active' : 'Archived'}.`);
+      fetchData();
+    } else {
+      setError(typeof res.error === 'object' ? JSON.stringify(res.error) : res.error);
+    }
+  };
+
+  const handleDeleteCycle = async (cycle) => {
+    if (!window.confirm(`Are you sure you want to delete the promotion cycle for ${cycle.year}? This action cannot be undone.`)) {
+      return;
+    }
+    setError('');
+    setMessage('');
+    const res = await ApiClient.delete(`/admin-panel/cycles/${cycle.id}/`);
+    if (res.success) {
+      setMessage(`Promotion cycle ${cycle.year} deleted successfully!`);
+      if (editingCycle && editingCycle.id === cycle.id) {
+        handleCancelEdit();
+      }
       fetchData();
     } else {
       setError(typeof res.error === 'object' ? JSON.stringify(res.error) : res.error);
@@ -320,11 +377,19 @@ function AdminDashboard({ user }) {
         /* Cycles Management */
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '30px' }}>
           <div className="card">
-            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '15px' }}>Start Promotion Cycle</h3>
-            <form onSubmit={handleCreateCycle} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '15px' }}>
+              {editingCycle ? `Edit Promotion Cycle ${editingCycle.year}` : 'Start Promotion Cycle'}
+            </h3>
+            <form onSubmit={handleSaveCycle} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Cycle Year</label>
-                <input type="text" value={newCycleYear} onChange={(e) => setNewCycleYear(e.target.value)} required />
+                <input 
+                  type="text" 
+                  value={newCycleYear} 
+                  onChange={(e) => setNewCycleYear(e.target.value)} 
+                  required 
+                  disabled={editingCycle !== null} 
+                />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Start Date</label>
@@ -338,7 +403,16 @@ function AdminDashboard({ user }) {
                 <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Portal Fee (₦)</label>
                 <input type="number" value={newCycleFee} onChange={(e) => setNewCycleFee(e.target.value)} required />
               </div>
-              <button type="submit" className="btn btn-primary">Start New Cycle</button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="btn btn-primary" style={{ flexGrow: 1 }}>
+                  {editingCycle ? 'Save Changes' : 'Start New Cycle'}
+                </button>
+                {editingCycle && (
+                  <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -351,6 +425,7 @@ function AdminDashboard({ user }) {
                   <th>Deadline</th>
                   <th>Fee Amount</th>
                   <th>Status</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -364,6 +439,36 @@ function AdminDashboard({ user }) {
                       <span className={`badge ${cyc.is_active ? 'badge-success' : 'badge-danger'}`}>
                         {cyc.is_active ? 'Active' : 'Archived'}
                       </span>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                        <button 
+                          className="btn btn-secondary" 
+                          onClick={() => handleToggleActive(cyc)}
+                          style={{ padding: '6px 12px', fontSize: '0.8rem', background: cyc.is_active ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: cyc.is_active ? 'var(--color-danger)' : 'var(--color-success)', borderColor: 'transparent' }}
+                          title={cyc.is_active ? "Archive/Close Cycle" : "Activate Cycle"}
+                        >
+                          <Archive size={14} />
+                          {cyc.is_active ? 'Close' : 'Activate'}
+                        </button>
+                        <button 
+                          className="btn btn-secondary" 
+                          onClick={() => handleEditClick(cyc)}
+                          style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                          title="Edit Cycle Details"
+                        >
+                          <Pencil size={14} />
+                          Edit
+                        </button>
+                        <button 
+                          className="btn btn-secondary" 
+                          onClick={() => handleDeleteCycle(cyc)}
+                          style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--color-danger)', borderColor: 'transparent' }}
+                          title="Delete Cycle"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
