@@ -4,11 +4,12 @@ databases:
     user: appers_user
     plan: free
 
-redis:
-  - name: appers-redis
+services:
+  # Redis Cache & Queue (Managed Service)
+  - type: redis
+    name: appers-redis
     plan: free
 
-services:
   # Django Backend Web Service
   - type: web
     name: appers-backend
