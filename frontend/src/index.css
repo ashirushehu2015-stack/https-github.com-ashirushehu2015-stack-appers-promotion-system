@@ -236,3 +236,285 @@ tr:hover td {
 .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
 .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--color-warning); }
 .badge-info { background: rgba(6, 182, 212, 0.15); color: var(--color-info); }
+
+/* 
+=========================================
+PREMIUM OVERHAUL AND WIDGETS
+=========================================
+*/
+
+/* 1. Slow-Drifting Glowing Orbs */
+@keyframes floatOrb1 {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes floatOrb2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-40px, 30px) scale(1.15); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.orb-float-1 {
+  animation: floatOrb1 15s ease-in-out infinite;
+}
+
+.orb-float-2 {
+  animation: floatOrb2 20s ease-in-out infinite;
+}
+
+/* 2. Real-Time Activity Ledger Ticker */
+.ledger-ticker-container {
+  background: rgba(13, 20, 35, 0.7);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  margin-top: 40px;
+}
+
+.ledger-ticker-label {
+  background: rgba(25, 135, 84, 0.15);
+  color: #198754;
+  border: 1px solid rgba(25, 135, 84, 0.3);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 20px;
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(25, 135, 84, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.ledger-ticker-pulse {
+  width: 6px;
+  height: 6px;
+  background-color: #198754;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #198754;
+  animation: pulseGlow 1.5s infinite;
+}
+
+.ledger-ticker-flow-wrapper {
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+}
+
+.ledger-ticker-flow {
+  display: flex;
+  white-space: nowrap;
+  animation: tickerMarquee 40s linear infinite;
+  gap: 50px;
+  padding-left: 20px;
+}
+
+.ledger-ticker-flow:hover {
+  animation-play-state: paused;
+}
+
+.ledger-ticker-item {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ledger-ticker-timestamp {
+  color: #64748b;
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+@keyframes tickerMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* 3. Interactive Promotion Eligibility Calculator Widget */
+.calculator-card {
+  background: rgba(19, 28, 46, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--border-radius-lg);
+  padding: 30px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-premium);
+  transition: var(--transition-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.calculator-card:hover {
+  border-color: rgba(25, 135, 84, 0.25);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(25, 135, 84, 0.08);
+}
+
+.calculator-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+@media (min-width: 640px) {
+  .calculator-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.calculator-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Calculator Result Panel */
+.calculator-result-panel {
+  background: rgba(7, 11, 18, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 160px;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.result-status-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.status-eligible {
+  background: rgba(25, 135, 84, 0.15);
+  color: #198754;
+  border: 1px solid rgba(25, 135, 84, 0.3);
+  box-shadow: 0 0 15px rgba(25, 135, 84, 0.15);
+}
+
+.status-ineligible {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.05);
+}
+
+.status-select-date {
+  background: rgba(148, 163, 184, 0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fill-eligible {
+  background: linear-gradient(90deg, #198754, #2bb174);
+  box-shadow: 0 0 10px rgba(25, 135, 84, 0.4);
+}
+
+.fill-ineligible {
+  background: linear-gradient(90deg, #ffc107, #ffd054);
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.2);
+}
+
+.calculator-details-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+
+.details-block {
+  text-align: center;
+}
+
+.details-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.details-lbl {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
+/* Micro hover transitions */
+.btn-primary:active, .btn-secondary:active {
+  transform: scale(0.97);
+}
+
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #198754;
+  transition: var(--transition-smooth);
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+

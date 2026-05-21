@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ApiClient from '../api/client';
 import { 
   Lock, Mail, User, ShieldCheck, Key, ArrowRight, Landmark, BadgeCheck, 
@@ -11,6 +11,111 @@ function Login({ onLoginSuccess }) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false); // Authentication Modal Toggle
   const [openFaq, setOpenFaq] = useState(null); // FAQ Accordion State
+  
+  // Eligibility Calculator State
+  const [calcGradeLevel, setCalcGradeLevel] = useState('07');
+  const [calcLastPromoDate, setCalcLastPromoDate] = useState('');
+  const [eligibility, setEligibility] = useState(null);
+
+  const calculateEligibility = (gl, dateStr) => {
+    if (!dateStr) return null;
+    const lastPromoDate = new Date(dateStr);
+    const today = new Date();
+    
+    if (isNaN(lastPromoDate.getTime())) return null;
+
+    const glNum = parseInt(gl, 10);
+    let requiredYears = 3;
+    if (glNum >= 1 && glNum <= 6) {
+      requiredYears = 2;
+    } else if (glNum >= 7 && glNum <= 13) {
+      requiredYears = 3;
+    } else if (glNum >= 14 && glNum <= 16) {
+      requiredYears = 4;
+    }
+
+    const diffTime = Math.max(0, today.getTime() - lastPromoDate.getTime());
+    const elapsedDaysTotal = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    let yearsDiff = today.getFullYear() - lastPromoDate.getFullYear();
+    let monthsDiff = today.getMonth() - lastPromoDate.getMonth();
+    let daysDiff = today.getDate() - lastPromoDate.getDate();
+
+    if (daysDiff < 0) {
+      const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      daysDiff += prevMonth.getDate();
+      monthsDiff--;
+    }
+    if (monthsDiff < 0) {
+      monthsDiff += 12;
+      yearsDiff--;
+    }
+
+    const requiredDaysTotal = requiredYears * 365.25;
+    const maturityPercent = Math.min(100, Math.floor((elapsedDaysTotal / requiredDaysTotal) * 100));
+
+    const isEligible = elapsedDaysTotal >= requiredDaysTotal || yearsDiff >= requiredYears;
+
+    let remainingYears = 0;
+    let remainingMonths = 0;
+    let remainingDays = 0;
+
+    if (!isEligible) {
+      const targetDate = new Date(lastPromoDate);
+      targetDate.setFullYear(targetDate.getFullYear() + requiredYears);
+      
+      remainingYears = targetDate.getFullYear() - today.getFullYear();
+      remainingMonths = targetDate.getMonth() - today.getMonth();
+      remainingDays = targetDate.getDate() - today.getDate();
+
+      if (remainingDays < 0) {
+        const prevMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 0);
+        remainingDays += prevMonth.getDate();
+        remainingMonths--;
+      }
+      if (remainingMonths < 0) {
+        remainingMonths += 12;
+        remainingYears--;
+      }
+    }
+
+    return {
+      isEligible,
+      maturityPercent,
+      elapsedDaysTotal,
+      requiredYears,
+      elapsed: {
+        years: Math.max(0, yearsDiff),
+        months: Math.max(0, monthsDiff),
+        days: Math.max(0, daysDiff)
+      },
+      remaining: !isEligible ? {
+        years: Math.max(0, remainingYears),
+        months: Math.max(0, remainingMonths),
+        days: Math.max(0, remainingDays)
+      } : null
+    };
+  };
+
+  useEffect(() => {
+    if (calcLastPromoDate) {
+      const res = calculateEligibility(calcGradeLevel, calcLastPromoDate);
+      setEligibility(res);
+    } else {
+      setEligibility(null);
+    }
+  }, [calcGradeLevel, calcLastPromoDate]);
+
+  const tickerEvents = [
+    { type: 'VERIFICATION', text: 'GL 12 Senior Admin Officer verified in Ministry of Finance', time: 'Just now' },
+    { type: 'PAYMENT', text: 'Virtual payment matched for GL 09 Candidate (MOH-Zamfara)', time: '2 mins ago' },
+    { type: 'SUBMISSION', text: 'Digital APERS submitted successfully by candidate #8472', time: '5 mins ago' },
+    { type: 'EVALUATION', text: 'Superior Officer submitted rating recommendations for GL 05 officer', time: '12 mins ago' },
+    { type: 'SECURITY', text: '32-byte AES field encryption synchronization complete', time: '18 mins ago' },
+    { type: 'AUDIT', text: 'CSC Board review registry snapshot signed with key sha-256', time: '25 mins ago' },
+    { type: 'MATURITY', text: 'Grade Level eligibility auto-rule check run completed for all MDAs', time: '30 mins ago' },
+    { type: 'REGISTRATION', text: 'New candidate registered from Ministry of Works', time: '34 mins ago' },
+  ];
   
   // Registration Form State
   const [email, setEmail] = useState('');
@@ -172,8 +277,8 @@ function Login({ onLoginSuccess }) {
         overflow: 'hidden'
       }}>
         {/* Glow Spheres */}
-        <div style={{ position: 'absolute', top: '10%', left: '15%', width: '300px', height: '300px', background: 'rgba(25, 135, 84, 0.08)', filter: 'blur(80px)', borderRadius: '50%' }}></div>
-        <div style={{ position: 'absolute', bottom: '10%', right: '15%', width: '300px', height: '300px', background: 'rgba(255, 193, 7, 0.04)', filter: 'blur(90px)', borderRadius: '50%' }}></div>
+        <div className="orb-float-1" style={{ position: 'absolute', top: '10%', left: '15%', width: '300px', height: '300px', background: 'rgba(25, 135, 84, 0.08)', filter: 'blur(80px)', borderRadius: '50%' }}></div>
+        <div className="orb-float-2" style={{ position: 'absolute', bottom: '10%', right: '15%', width: '300px', height: '300px', background: 'rgba(255, 193, 7, 0.04)', filter: 'blur(90px)', borderRadius: '50%' }}></div>
 
         <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
           <div className="badge badge-success" style={{ background: 'rgba(25, 135, 84, 0.15)', color: '#198754', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '25px', letterSpacing: '0.05em' }}>
@@ -209,10 +314,11 @@ function Login({ onLoginSuccess }) {
 
       {/* ── 3. PORTAL STATISTICS ── */}
       <section style={{
-        padding: '60px 80px',
+        padding: '60px 80px 40px 80px',
         backgroundColor: '#0c1322',
         borderTop: '1px solid rgba(255,255,255,0.05)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)'
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        position: 'relative'
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px', maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
           <div>
@@ -230,6 +336,32 @@ function Login({ onLoginSuccess }) {
           <div>
             <h3 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#ef4444' }}>&lt; 5 min</h3>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '5px' }}>Form Unlocks After Payment</p>
+          </div>
+        </div>
+
+        {/* ── LIVE ACTIVITY LEDGER TICKER ── */}
+        <div className="ledger-ticker-container">
+          <div className="ledger-ticker-label">
+            <div className="ledger-ticker-pulse"></div>
+            Live Registry Ledger
+          </div>
+          <div className="ledger-ticker-flow-wrapper">
+            <div className="ledger-ticker-flow">
+              {[...tickerEvents, ...tickerEvents].map((evt, idx) => (
+                <div key={idx} className="ledger-ticker-item">
+                  <span className="ledger-ticker-timestamp">{evt.time}</span>
+                  <span style={{
+                    color: evt.type === 'PAYMENT' ? '#ffc107' : 
+                           evt.type === 'VERIFICATION' ? '#10b981' : 
+                           evt.type === 'SECURITY' ? '#38bdf8' : '#8b5cf6',
+                    fontWeight: '700',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em'
+                  }}>[{evt.type}]</span>
+                  <span>{evt.text}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -270,42 +402,157 @@ function Login({ onLoginSuccess }) {
 
       {/* ── 5. PROMOTION MATURITY RULES ── */}
       <section id="rules" style={{ padding: '100px 80px', backgroundColor: '#0c1322' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'center' }}>
-          <div>
-            <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginBottom: '20px' }}>Dynamic Grade Level Maturity Criteria</h2>
-            <p style={{ color: '#94a3b8', fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '30px' }}>
-              The Zamfara State Civil Service Commission calculates promotion candidacy based on precise periods since your last substantive promotion. All guidelines are verified automatically by the APPERS rule engine.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <CheckCircle2 style={{ color: '#198754' }} />
-                <span><strong>GL 01 - 06:</strong> Minimum 2 years in substantive grade level.</span>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'center', marginBottom: '50px' }}>
+            <div>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginBottom: '20px' }}>Dynamic Grade Level Maturity Criteria</h2>
+              <p style={{ color: '#94a3b8', fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '30px' }}>
+                The Zamfara State Civil Service Commission calculates promotion candidacy based on precise periods since your last substantive promotion. All guidelines are verified automatically by the APPERS rule engine.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <CheckCircle2 style={{ color: '#198754' }} />
+                  <span><strong>GL 01 - 06:</strong> Minimum 2 years in substantive grade level.</span>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <CheckCircle2 style={{ color: '#198754' }} />
+                  <span><strong>GL 07 - 13:</strong> Minimum 3 years in substantive grade level.</span>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <CheckCircle2 style={{ color: '#198754' }} />
+                  <span><strong>GL 14 - 16:</strong> Minimum 4 years in substantive grade level.</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <CheckCircle2 style={{ color: '#198754' }} />
-                <span><strong>GL 07 - 13:</strong> Minimum 3 years in substantive grade level.</span>
-              </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <CheckCircle2 style={{ color: '#198754' }} />
-                <span><strong>GL 14 - 16:</strong> Minimum 4 years in substantive grade level.</span>
+            </div>
+
+            <div className="card glass" style={{ padding: '30px' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '20px', color: '#ffc107' }}>Workflow & Routing Exceptions</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', borderLeft: '3px solid #198754' }}>
+                  <strong style={{ display: 'block', color: '#fff', fontSize: '0.9rem' }}>Civil Service Commission (CSC)</strong>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Promotions require physical external validation before approval is updated in D7 decisions registry.</span>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', borderLeft: '3px solid #ffc107' }}>
+                  <strong style={{ display: 'block', color: '#fff', fontSize: '0.9rem' }}>Head of Service (HoS)</strong>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Senior officers in GL 14-16 are flagged automatically and sent to the Head of Service workflow inbox.</span>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
+                  <strong style={{ display: 'block', color: '#fff', fontSize: '0.9rem' }}>Tertiary Institutions</strong>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Exempted from standard rules. Admins can configure custom maturity criteria on a per-institution basis.</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="card glass" style={{ padding: '30px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '20px', color: '#ffc107' }}>Workflow & Routing Exceptions</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', borderLeft: '3px solid #198754' }}>
-                <strong style={{ display: 'block', color: '#fff', fontSize: '0.9rem' }}>Civil Service Commission (CSC)</strong>
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Promotions require physical external validation before approval is updated in D7 decisions registry.</span>
+          {/* ── INTERACTIVE PROMOTION ELIGIBILITY CALCULATOR ── */}
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div className="calculator-card">
+              <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                <span style={{ color: '#198754', fontWeight: '800', fontSize: '0.8rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Interactive Tool</span>
+                <h3 style={{ fontSize: '1.6rem', fontWeight: '800', marginTop: '4px', color: '#fff' }}>Promotion Eligibility Calculator</h3>
+                <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '4px' }}>Select your current Grade Level and enter your date of last substantive promotion to check candidacy status.</p>
               </div>
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', borderLeft: '3px solid #ffc107' }}>
-                <strong style={{ display: 'block', color: '#fff', fontSize: '0.9rem' }}>Head of Service (HoS)</strong>
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Senior officers in GL 14-16 are flagged automatically and sent to the Head of Service workflow inbox.</span>
+              
+              <div className="calculator-grid">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label className="calculator-label">Current Grade Level</label>
+                  <select 
+                    value={calcGradeLevel} 
+                    onChange={(e) => setCalcGradeLevel(e.target.value)}
+                    style={{ backgroundColor: '#131c2e', cursor: 'pointer' }}
+                  >
+                    {Array.from({ length: 16 }, (_, i) => String(i + 1).padStart(2, '0')).map(gl => (
+                      <option key={gl} value={gl}>GL {gl}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label className="calculator-label">Date of Last Substantive Promotion</label>
+                  <input 
+                    type="date" 
+                    value={calcLastPromoDate} 
+                    onChange={(e) => setCalcLastPromoDate(e.target.value)}
+                    style={{ backgroundColor: '#131c2e', cursor: 'pointer' }}
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
               </div>
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', borderLeft: '3px solid #38bdf8' }}>
-                <strong style={{ display: 'block', color: '#fff', fontSize: '0.9rem' }}>Tertiary Institutions</strong>
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Exempted from standard rules. Admins can configure custom maturity criteria on a per-institution basis.</span>
+
+              <div className="calculator-result-panel">
+                {!eligibility ? (
+                  <div style={{ textAlign: 'center', color: '#64748b' }}>
+                    <p style={{ fontSize: '0.95rem' }}>Select your last promotion date above to calculate candidacy status.</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="result-header">
+                      <div>
+                        <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Candidacy Decision:</span>
+                        <h4 style={{ fontSize: '1.25rem', fontWeight: '800', marginTop: '2px', color: '#fff' }}>
+                          {eligibility.isEligible ? 'Maturity Criteria Fully Met' : 'Maturity Criteria In Progress'}
+                        </h4>
+                      </div>
+                      <span className={`result-status-badge ${eligibility.isEligible ? 'status-eligible' : 'status-ineligible'}`}>
+                        {eligibility.isEligible ? 'Eligible' : 'Not Eligible Yet'}
+                      </span>
+                    </div>
+
+                    <div className="progress-container">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#94a3b8' }}>
+                        <span>Maturity Timeline Progress</span>
+                        <span style={{ fontWeight: '700', color: eligibility.isEligible ? '#10b981' : '#ffc107' }}>
+                          {eligibility.maturityPercent}% Completed
+                        </span>
+                      </div>
+                      <div className="progress-track">
+                        <div 
+                          className={`progress-bar-fill ${eligibility.isEligible ? 'fill-eligible' : 'fill-ineligible'}`} 
+                          style={{ width: `${eligibility.maturityPercent}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="calculator-details-row">
+                      <div className="details-block">
+                        <div className="details-val">{eligibility.requiredYears} Yrs</div>
+                        <div className="details-lbl">Required service</div>
+                      </div>
+                      <div className="details-block" style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.05)', borderRight: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                        <div className="details-val" style={{ color: eligibility.isEligible ? '#10b981' : '#94a3b8' }}>
+                          {eligibility.elapsed.years}y {eligibility.elapsed.months}m
+                        </div>
+                        <div className="details-lbl">Elapsed Time</div>
+                      </div>
+                      <div className="details-block">
+                        <div className="details-val" style={{ color: eligibility.isEligible ? '#10b981' : '#ffc107' }}>
+                          {eligibility.isEligible ? '0 days' : `${eligibility.remaining.years}y ${eligibility.remaining.months}m ${eligibility.remaining.days}d`}
+                        </div>
+                        <div className="details-lbl">Remaining</div>
+                      </div>
+                    </div>
+
+                    {eligibility.isEligible && (
+                      <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                        <button 
+                          className="btn btn-primary" 
+                          onClick={() => { setShowAuthModal(true); setIsRegistering(true); }}
+                          style={{ 
+                            padding: '10px 28px', 
+                            background: 'linear-gradient(135deg, #198754, #146c43)', 
+                            color: '#fff', 
+                            borderRadius: '8px', 
+                            fontSize: '0.9rem',
+                            boxShadow: '0 4px 12px rgba(25, 135, 84, 0.2)'
+                          }}
+                        >
+                          Proceed to Register & Submit APERS
+                          <ArrowRight size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -340,18 +587,34 @@ function Login({ onLoginSuccess }) {
           ].map((faq, idx) => (
             <div 
               key={idx} 
-              style={{ background: '#111827', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden', cursor: 'pointer' }}
+              style={{ 
+                background: '#111827', 
+                borderRadius: '8px', 
+                border: '1px solid rgba(255,255,255,0.05)', 
+                overflow: 'hidden', 
+                cursor: 'pointer',
+                transition: 'border-color 0.3s ease'
+              }}
               onClick={() => toggleFaq(idx)}
+              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(25, 135, 84, 0.3)'}
+              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', fontWeight: '600' }}>
                 <span>{faq.q}</span>
-                <ChevronDown size={18} style={{ transform: openFaq === idx ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: '#198754' }} />
+                <ChevronDown size={18} style={{ transform: openFaq === idx ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s', color: '#198754' }} />
               </div>
-              {openFaq === idx && (
-                <div style={{ padding: '0 20px 20px 20px', color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                  {faq.a}
-                </div>
-              )}
+              <div style={{ 
+                maxHeight: openFaq === idx ? '160px' : '0px',
+                opacity: openFaq === idx ? 1 : 0,
+                overflow: 'hidden',
+                transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.4s ease',
+                padding: openFaq === idx ? '0 20px 20px 20px' : '0 20px 0 20px', 
+                color: '#94a3b8', 
+                fontSize: '0.9rem', 
+                lineHeight: '1.5' 
+              }}>
+                {faq.a}
+              </div>
             </div>
           ))}
         </div>
